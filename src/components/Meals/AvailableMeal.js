@@ -7,13 +7,17 @@ import { useEffect, useState } from "react";
 const AvailableMeal = () => {
 
     const [meals , setMeals] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error , setError] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error , setError] = useState();
 
     useEffect(()=>{
         const fetchMeals = async() => {
             const response = await fetch("https://foodapp-9693-default-rtdb.asia-southeast1.firebasedatabase.app/food/meals.json");
             
+            if(!response.ok){
+                throw new Error("An Error Occured!");
+            }
+
             const responseData = await response.json();
             const loadedMeals = [];
 
@@ -31,14 +35,25 @@ const AvailableMeal = () => {
             setIsLoading(false);
         };
 
-        fetchMeals();
+        fetchMeals().catch(e => {
+            setIsLoading(false);
+            setError(e.message);
+        });   
         
     }, []);
 
     if(isLoading){
-        return <section className={classes.MealLoading}>
+        return <section className={classes.MealsLoading}>
             <p>
                 Loading.....
+            </p>
+        </section>
+    }
+
+    if(error){
+        return <section className={classes.MealsError}>
+            <p>
+                {error}
             </p>
         </section>
     }
